@@ -1,0 +1,29 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Usuário</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="tab-content active">
+        <h2>Cadastro</h2>
+
+        <input type="text" id="nome" placeholder="Nome">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="senha" placeholder="Senha">
+
+        <button onclick="cadastrarUsuario()">Cadastrar</button>
+
+        <div class="resultado" id="resultadoLogin"></div>
+
+        <p style="margin-top: 15px; text-align: center; font-size: 14px;">
+            Já tem uma conta? <a href="login.html" style="color: #007bff; text-decoration: none;">Faça login</a>
+        </p>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
