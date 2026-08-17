@@ -1,0 +1,313 @@
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+
+    <head>
+
+        <meta charset="UTF-8">
+
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        >
+
+        <title>PC Store - Peças</title>
+
+        <link
+            rel="stylesheet"
+            href="style.css"
+        >
+
+    </head>
+
+    <body>
+
+        <header>
+
+            <div>
+
+                <h1>🖥️ PC Store</h1>
+
+                <p>
+                    Sistema de Cadastro de Peças de PC
+                </p>
+
+            </div>
+
+            <button
+                class="btn-logout"
+                type="button"
+                onclick="logout()"
+            >
+                Sair
+            </button>
+
+        </header>
+
+
+        <main>
+
+            <div class="tabs">
+
+                <button
+                    class="tab-btn active"
+                    type="button"
+                    onclick="abrirTab(0)"
+                >
+                    📦 Peças
+                </button>
+
+                <button
+                    class="tab-btn"
+                    type="button"
+                    onclick="abrirTab(1)"
+                >
+                    ➕ Cadastrar Peça
+                </button>
+
+            </div>
+
+
+            <!-- LISTA DE PEÇAS -->
+
+            <section class="tab-content active">
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h2>
+                            Peças cadastradas
+                        </h2>
+
+                        <p>
+                            Consulte as peças disponíveis no sistema.
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        onclick="listarPecas()"
+                    >
+                        🔄 Atualizar
+                    </button>
+
+                </div>
+
+
+                <div class="search-box">
+
+                    <input
+                        type="text"
+                        id="buscaPeca"
+                        placeholder="Pesquisar por nome, categoria, marca ou modelo..."
+                        oninput="buscarPecas()"
+                    >
+
+                </div>
+
+
+                <div id="listaPecas">
+
+                    <div class="loading">
+                        Carregando peças...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- CADASTRO -->
+
+            <section class="tab-content">
+
+                <div class="form-container">
+
+                    <h2>
+                        ➕ Cadastrar nova peça
+                    </h2>
+
+                    <p>
+                        Preencha os dados da peça de computador.
+                    </p>
+
+
+                    <form
+                        id="formPeca"
+                        onsubmit="cadastrarPeca(event)"
+                    >
+
+                        <div class="form-grid">
+
+
+                            <div>
+
+                                <label for="pecaNome">
+                                    Nome da peça
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="pecaNome"
+                                    placeholder="Ex.: Processador"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div>
+
+                                <label for="pecaCategoria">
+                                    Categoria
+                                </label>
+
+                                <select
+                                    id="pecaCategoria"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Selecione
+                                    </option>
+
+                                    <option value="Processador">
+                                        Processador
+                                    </option>
+
+                                    <option value="Placa de Vídeo">
+                                        Placa de Vídeo
+                                    </option>
+
+                                    <option value="Memória RAM">
+                                        Memória RAM
+                                    </option>
+
+                                    <option value="Placa-mãe">
+                                        Placa-mãe
+                                    </option>
+
+                                    <option value="SSD">
+                                        SSD
+                                    </option>
+
+                                    <option value="HD">
+                                        HD
+                                    </option>
+
+                                    <option value="Fonte">
+                                        Fonte
+                                    </option>
+
+                                    <option value="Gabinete">
+                                        Gabinete
+                                    </option>
+
+                                    <option value="Cooler">
+                                        Cooler
+                                    </option>
+
+                                    <option value="Outro">
+                                        Outro
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div>
+
+                                <label for="pecaMarca">
+                                    Marca
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="pecaMarca"
+                                    placeholder="Ex.: AMD"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div>
+
+                                <label for="pecaModelo">
+                                    Modelo
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="pecaModelo"
+                                    placeholder="Ex.: Ryzen 5 5600"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div>
+
+                                <label for="pecaPreco">
+                                    Preço
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="pecaPreco"
+                                    placeholder="Ex.: 899.90"
+                                    step="0.01"
+                                    min="0"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div>
+
+                                <label for="pecaEstoque">
+                                    Estoque
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="pecaEstoque"
+                                    placeholder="Ex.: 10"
+                                    min="0"
+                                    step="1"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            class="btn-cadastrar"
+                            type="submit"
+                        >
+                            💾 Cadastrar peça
+                        </button>
+
+                    </form>
+
+
+                    <div id="resultadoPeca"></div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <script src="script.js"></script>
+
+    </body>
+
+    </html>

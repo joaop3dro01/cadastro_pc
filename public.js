@@ -1,19 +1,27 @@
+// ========================================
+// CONFIGURAÇÃO
+// ========================================
+
 const API = "";
 
 
-// =====================================
-// VERIFICAR LOGIN
-// =====================================
+// ========================================
+// TOKEN
+// ========================================
 
 function pegarToken() {
+
     return localStorage.getItem("token");
 }
 
 
+// ========================================
+// VERIFICAR LOGIN
+// ========================================
+
 function verificarLogin() {
 
-    const token =
-        pegarToken();
+    const token = pegarToken();
 
     if (!token) {
 
@@ -27,9 +35,28 @@ function verificarLogin() {
 }
 
 
-// =====================================
-// ABRIR TAB
-// =====================================
+// ========================================
+// HEADERS
+// ========================================
+
+function headers() {
+
+    const token = pegarToken();
+
+    return {
+
+        "Content-Type":
+            "application/json",
+
+        "Authorization":
+            `Bearer ${token}`
+    };
+}
+
+
+// ========================================
+// ABRIR ABA
+// ========================================
 
 function abrirTab(numero) {
 
@@ -43,56 +70,39 @@ function abrirTab(numero) {
             ".tab-content"
         );
 
-    botoes.forEach(
-        botao =>
-            botao.classList.remove(
-                "active"
-            )
-    );
+    botoes.forEach(botao => {
 
-    conteudos.forEach(
-        conteudo =>
-            conteudo.classList.remove(
-                "active"
-            )
-    );
+        botao.classList.remove(
+            "active"
+        );
+
+    });
+
+    conteudos.forEach(conteudo => {
+
+        conteudo.classList.remove(
+            "active"
+        );
+
+    });
 
     if (botoes[numero]) {
+
         botoes[numero]
             .classList.add("active");
     }
 
     if (conteudos[numero]) {
+
         conteudos[numero]
             .classList.add("active");
     }
-
 }
 
 
-// =====================================
-// CABEÇALHO
-// =====================================
-
-function headers() {
-
-    return {
-
-        "Content-Type":
-            "application/json",
-
-        "Authorization":
-            "Bearer " +
-            pegarToken()
-
-    };
-
-}
-
-
-// =====================================
+// ========================================
 // LISTAR PEÇAS
-// =====================================
+// ========================================
 
 async function listarPecas() {
 
@@ -105,18 +115,28 @@ async function listarPecas() {
             "listaPecas"
         );
 
+    if (!lista) {
+        return;
+    }
+
     lista.innerHTML =
-        '<div class="loading">Carregando peças...</div>';
+        `<div class="loading">
+            Carregando peças...
+        </div>`;
 
     try {
 
         const resposta =
             await fetch(
-                API + "/pecas",
+                "/pecas",
                 {
+                    method: "GET",
                     headers: headers()
                 }
             );
+
+        const dados =
+            await resposta.json();
 
         if (resposta.status === 401) {
 
@@ -125,10 +145,15 @@ async function listarPecas() {
             return;
         }
 
-        const pecas =
-            await resposta.json();
+        if (!resposta.ok) {
 
-        mostrarPecas(pecas);
+            throw new Error(
+                dados.erro ||
+                "Erro ao carregar peças."
+            );
+        }
+
+        mostrarPecas(dados);
 
     } catch (erro) {
 
@@ -136,15 +161,15 @@ async function listarPecas() {
 
         lista.innerHTML =
             `<div class="erro">
-                Erro ao carregar peças.
+                ${escapar(erro.message)}
             </div>`;
     }
 }
 
 
-// =====================================
+// ========================================
 // MOSTRAR PEÇAS
-// =====================================
+// ========================================
 
 function mostrarPecas(pecas) {
 
@@ -153,12 +178,21 @@ function mostrarPecas(pecas) {
             "listaPecas"
         );
 
-    if (!pecas.length) {
+    if (!lista) {
+        return;
+    }
+
+    if (
+        !Array.isArray(pecas) ||
+        pecas.length === 0
+    ) {
 
         lista.innerHTML =
             `<div class="vazio">
                 <h3>Nenhuma peça cadastrada</h3>
-                <p>Cadastre uma peça para ela aparecer aqui.</p>
+                <p>
+                    Cadastre uma peça para ela aparecer aqui.
+                </p>
             </div>`;
 
         return;
@@ -178,7 +212,6 @@ function mostrarPecas(pecas) {
                     );
 
             return `
-
                 <div class="peca-card">
 
                     <div class="peca-info">
@@ -216,6 +249,7 @@ function mostrarPecas(pecas) {
                         </strong>
 
                         <button
+                            type="button"
                             onclick="excluirPeca(${peca.id})"
                         >
                             🗑️ Excluir
@@ -224,16 +258,15 @@ function mostrarPecas(pecas) {
                     </div>
 
                 </div>
-
             `;
 
         }).join("");
 }
 
 
-// =====================================
-// BUSCAR
-// =====================================
+// ========================================
+// BUSCAR PEÇAS
+// ========================================
 
 async function buscarPecas() {
 
@@ -246,6 +279,10 @@ async function buscarPecas() {
             "buscaPeca"
         );
 
+    if (!campo) {
+        return;
+    }
+
     const termo =
         campo.value.trim();
 
@@ -253,13 +290,15 @@ async function buscarPecas() {
 
         const resposta =
             await fetch(
-                API +
-                "/pecas/buscar?termo=" +
-                encodeURIComponent(termo),
+                `/pecas/buscar?termo=${encodeURIComponent(termo)}`,
                 {
+                    method: "GET",
                     headers: headers()
                 }
             );
+
+        const dados =
+            await resposta.json();
 
         if (resposta.status === 401) {
 
@@ -268,22 +307,39 @@ async function buscarPecas() {
             return;
         }
 
-        const pecas =
-            await resposta.json();
+        if (!resposta.ok) {
 
-        mostrarPecas(pecas);
+            throw new Error(
+                dados.erro ||
+                "Erro ao pesquisar."
+            );
+        }
+
+        mostrarPecas(dados);
 
     } catch (erro) {
 
         console.error(erro);
 
+        const lista =
+            document.getElementById(
+                "listaPecas"
+            );
+
+        if (lista) {
+
+            lista.innerHTML =
+                `<div class="erro">
+                    ${escapar(erro.message)}
+                </div>`;
+        }
     }
 }
 
 
-// =====================================
+// ========================================
 // CADASTRAR PEÇA
-// =====================================
+// ========================================
 
 async function cadastrarPeca(event) {
 
@@ -329,14 +385,13 @@ async function cadastrarPeca(event) {
             document.getElementById(
                 "pecaEstoque"
             ).value
-
     };
 
     try {
 
         const resposta =
             await fetch(
-                API + "/pecas",
+                "/pecas",
                 {
                     method: "POST",
 
@@ -361,44 +416,59 @@ async function cadastrarPeca(event) {
 
             throw new Error(
                 retorno.erro ||
-                "Erro ao cadastrar."
+                "Erro ao cadastrar peça."
             );
         }
 
         resultado.innerHTML =
             `<div class="sucesso">
-                Peça cadastrada com sucesso!
+                ${escapar(
+                    retorno.mensagem ||
+                    "Peça cadastrada com sucesso!"
+                )}
             </div>`;
 
-        document
-            .querySelector(
-                "form"
-            )
-            .reset();
+        const formulario =
+            document.getElementById(
+                "formPeca"
+            );
 
-        listarPecas();
+        if (formulario) {
+            formulario.reset();
+        }
+
+        await listarPecas();
+
+        abrirTab(0);
 
     } catch (erro) {
 
+        console.error(erro);
+
         resultado.innerHTML =
             `<div class="erro">
-                ${erro.message}
+                ${escapar(erro.message)}
             </div>`;
-
     }
-
 }
 
 
-// =====================================
-// EXCLUIR
-// =====================================
+// ========================================
+// EXCLUIR PEÇA
+// ========================================
 
 async function excluirPeca(id) {
 
-    if (!confirm(
-        "Deseja realmente excluir esta peça?"
-    )) {
+    if (!verificarLogin()) {
+        return;
+    }
+
+    const confirmar =
+        confirm(
+            "Deseja realmente excluir esta peça?"
+        );
+
+    if (!confirmar) {
         return;
     }
 
@@ -406,12 +476,9 @@ async function excluirPeca(id) {
 
         const resposta =
             await fetch(
-                API +
-                "/pecas/" +
-                id,
+                `/pecas/${id}`,
                 {
                     method: "DELETE",
-
                     headers: headers()
                 }
             );
@@ -429,26 +496,27 @@ async function excluirPeca(id) {
         if (!resposta.ok) {
 
             throw new Error(
-                dados.erro
+                dados.erro ||
+                "Erro ao excluir peça."
             );
         }
 
-        listarPecas();
+        await listarPecas();
 
     } catch (erro) {
+
+        console.error(erro);
 
         alert(
             erro.message
         );
-
     }
-
 }
 
 
-// =====================================
+// ========================================
 // LOGOUT
-// =====================================
+// ========================================
 
 function logout() {
 
@@ -465,40 +533,62 @@ function logout() {
 }
 
 
-// =====================================
-// SEGURANÇA DO HTML
-// =====================================
+// ========================================
+// ESCAPAR HTML
+// ========================================
 
 function escapar(valor) {
 
     return String(valor)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
 
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 }
 
 
-// =====================================
+// ========================================
 // INICIAR
-// =====================================
+// ========================================
 
 document.addEventListener(
     "DOMContentLoaded",
-    () => {
+    function() {
+
+        const pagina =
+            window.location.pathname;
 
         if (
-            window.location.pathname
-                .includes("pecas")
+            pagina.endsWith(
+                "/pecas.html"
+            )
         ) {
 
             if (verificarLogin()) {
+
                 listarPecas();
             }
-
         }
-
     }
 );

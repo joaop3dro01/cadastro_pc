@@ -1,29 +1,246 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="pt-BR">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar Usuário</title>
-    <link rel="stylesheet" href="style.css">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>PC Store - Cadastro</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
 
 <body>
-    <div class="tab-content active">
-        <h2>Cadastro</h2>
 
-        <input type="text" id="nome" placeholder="Nome">
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="senha" placeholder="Senha">
+    <main class="login-container">
 
-        <button onclick="cadastrarUsuario()">Cadastrar</button>
+        <div class="login-box">
 
-        <div class="resultado" id="resultadoLogin"></div>
+            <h1>🖥️ PC Store</h1>
 
-        <p style="margin-top: 15px; text-align: center; font-size: 14px;">
-            Já tem uma conta? <a href="login.html" style="color: #007bff; text-decoration: none;">Faça login</a>
-        </p>
-    </div>
-    <script src="script.js"></script>
+            <p>
+                Criar uma nova conta
+            </p>
+
+            <form id="formCadastro">
+
+                <label for="nome">
+                    Nome
+                </label>
+
+                <input
+                    type="text"
+                    id="nome"
+                    placeholder="Digite seu nome"
+                    required
+                >
+
+                <label for="email">
+                    E-mail
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Digite seu e-mail"
+                    required
+                >
+
+                <label for="senha">
+                    Senha
+                </label>
+
+                <input
+                    type="password"
+                    id="senha"
+                    placeholder="Digite sua senha"
+                    minlength="4"
+                    required
+                >
+
+                <label for="confirmarSenha">
+                    Confirmar senha
+                </label>
+
+                <input
+                    type="password"
+                    id="confirmarSenha"
+                    placeholder="Digite a senha novamente"
+                    minlength="4"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    class="btn-cadastrar"
+                >
+                    👤 Criar conta
+                </button>
+
+            </form>
+
+            <div id="resultadoCadastro"></div>
+
+            <p class="link-cadastro">
+
+                Já possui uma conta?
+
+                <a href="/login.html">
+                    Fazer login
+                </a>
+
+            </p>
+
+        </div>
+
+    </main>
+
+    <script>
+
+        const formCadastro =
+            document.getElementById(
+                "formCadastro"
+            );
+
+        formCadastro.addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+                const nome =
+                    document.getElementById(
+                        "nome"
+                    ).value.trim();
+
+                const email =
+                    document.getElementById(
+                        "email"
+                    ).value.trim();
+
+                const senha =
+                    document.getElementById(
+                        "senha"
+                    ).value;
+
+                const confirmarSenha =
+                    document.getElementById(
+                        "confirmarSenha"
+                    ).value;
+
+                const resultado =
+                    document.getElementById(
+                        "resultadoCadastro"
+                    );
+
+                if (senha !== confirmarSenha) {
+
+                    resultado.innerHTML = `
+                        <div class="erro">
+                            As senhas não são iguais.
+                        </div>
+                    `;
+
+                    return;
+                }
+
+                if (senha.length < 4) {
+
+                    resultado.innerHTML = `
+                        <div class="erro">
+                            A senha deve ter pelo menos 4 caracteres.
+                        </div>
+                    `;
+
+                    return;
+                }
+
+                try {
+
+                    const resposta =
+                        await fetch(
+                            "/usuarios",
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify({
+                                        nome,
+                                        email,
+                                        senha
+                                    })
+                            }
+                        );
+
+                    const dados =
+                        await resposta.json();
+
+                    if (!resposta.ok) {
+
+                        throw new Error(
+                            dados.erro ||
+                            "Erro ao criar conta."
+                        );
+                    }
+
+                    localStorage.setItem(
+                        "token",
+                        dados.token
+                    );
+
+                    localStorage.setItem(
+                        "usuario",
+                        JSON.stringify(
+                            dados.usuario
+                        )
+                    );
+
+                    resultado.innerHTML = `
+                        <div class="sucesso">
+                            Conta criada com sucesso!
+                            Redirecionando...
+                        </div>
+                    `;
+
+                    setTimeout(
+                        function() {
+
+                            window.location.href =
+                                "/pecas.html";
+
+                        },
+                        1000
+                    );
+
+                } catch (erro) {
+
+                    console.error(erro);
+
+                    resultado.innerHTML = `
+                        <div class="erro">
+                            ${erro.message}
+                        </div>
+                    `;
+                }
+            }
+        );
+
+    </script>
+
 </body>
 
 </html>

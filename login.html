@@ -1,28 +1,143 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+
+    <title>PC Store - Login</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <div class="tab-content active">
-        <h2>Login</h2>
 
-        <input type="text" id="user" placeholder="Email">
-        <input type="password" id="senha" placeholder="Senha">
+    <main class="login-container">
 
-        <button onclick="login()">Entrar</button>
+        <div class="login-box">
 
-        <div class="resultado" id="resultadoLogin"></div>
+            <h1>🖥️ PC Store</h1>
 
-        <p style="margin-top: 15px; text-align: center; font-size: 14px;">
-            Não tem uma conta? <a href="cadastrarUsuario.html" style="color: #007bff; text-decoration: none;">Cadastre-se</a>
-        </p>
-    </div>
-    <script src="script.js"></script>
+            <p>Entre no sistema</p>
+
+            <form id="formLogin">
+
+                <label for="email">
+                    E-mail
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Digite seu e-mail"
+                    required
+                >
+
+                <label for="senha">
+                    Senha
+                </label>
+
+                <input
+                    type="password"
+                    id="senha"
+                    placeholder="Digite sua senha"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    class="btn-cadastrar"
+                >
+                    🔐 Entrar
+                </button>
+
+            </form>
+
+            <div id="resultadoLogin"></div>
+
+            <p class="link-cadastro">
+                Ainda não possui uma conta?
+                <a href="/cadastroUsuario.html">
+                    Cadastre-se
+                </a>
+            </p>
+
+        </div>
+
+    </main>
+
+    <script>
+
+        const formLogin =
+            document.getElementById("formLogin");
+
+        formLogin.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const email =
+                document.getElementById("email").value.trim();
+
+            const senha =
+                document.getElementById("senha").value;
+
+            const resultado =
+                document.getElementById("resultadoLogin");
+
+            try {
+
+                const resposta = await fetch("/login", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        email,
+                        senha
+                    })
+
+                });
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+
+                    throw new Error(
+                        dados.erro || "Erro ao fazer login."
+                    );
+
+                }
+
+                localStorage.setItem(
+                    "token",
+                    dados.token
+                );
+
+                localStorage.setItem(
+                    "usuario",
+                    JSON.stringify(dados.usuario)
+                );
+
+                window.location.href = "/pecas.html";
+
+            } catch (erro) {
+
+                resultado.innerHTML = `
+                    <div class="erro">
+                        ${erro.message}
+                    </div>
+                `;
+
+            }
+
+        });
+
+    </script>
+
 </body>
 
 </html>
